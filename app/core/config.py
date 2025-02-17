@@ -1,3 +1,10 @@
+### Core application infrastructure:
+### Config (config.py):
+# - Environment-based configuration system (dev/prod/test)
+# - Pydantic-based settings validation
+# - Secure handling of sensitive data
+# - Cached configuration access
+
 import os
 from functools import lru_cache
 from typing import Optional

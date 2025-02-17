@@ -1,3 +1,16 @@
+### FastAPI Application:
+# - Configures FastAPI with proper settings
+# - Sets up middleware stack
+# - Initializes authentication
+# - Configures CORS
+# - Manages database connections
+# - Implements startup/shutdown handlers
+# - Sets up logging
+# - Registers route handlers
+# - Configures OpenAPI documentation
+# - Implements health checks
+# - Provides production-ready server setup
+
 import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware

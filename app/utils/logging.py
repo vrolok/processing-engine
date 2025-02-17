@@ -1,3 +1,14 @@
+### Utility functions and helpers:
+### Logging System (logging.py):
+# - Structured JSON logging
+# - Request/user context tracking
+# - Environment-aware formatting
+# - Error logging helpers
+# - Context managers for log enrichment
+# - Performance logging
+# - Debug information in development
+# - Clean logging API with type hints
+
 import logging
 import json
 import sys

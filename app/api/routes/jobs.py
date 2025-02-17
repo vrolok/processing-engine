@@ -1,3 +1,12 @@
+### Job Management Endpoints (/jobs):
+# - CREATE: Submits new jobs with validation and user context
+# - READ: Retrieves individual jobs and lists jobs with pagination
+# - UPDATE: Modifies existing jobs with permission checks
+# - DELETE: Removes jobs with user verification
+# - PROCESS: Internal endpoint for Cloud Tasks job processing
+# - Implements proper error handling and status codes
+# - Includes authentication and authorization checks
+
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 

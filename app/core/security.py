@@ -1,3 +1,9 @@
+### Core application infrastructure:
+### Security (security.py):
+# - Azure AD authentication integration
+# - User context extraction and validation
+# - Token handling and verification
+
 from typing import Any
 from fastapi import HTTPException, Depends, status
 from fastapi_azure_auth import SingleTenantAzureAuthorizationCodeBearer
@@ -28,9 +34,3 @@ async def get_current_user(token: str = Depends(azure_scheme)) -> dict[str, Any]
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-
-def verify_api_key(api_key: str) -> bool:
-    """
-    Verify the API key for internal service-to-service communication.
-    """
-    return api_key == settings.API_KEY

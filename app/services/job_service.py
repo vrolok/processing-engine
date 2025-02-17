@@ -1,3 +1,14 @@
+### Business logic implementation:
+### Job Service:
+# - Handles complete job lifecycle management
+# - Integrates with Google Cloud Tasks for async processing
+# - Implements idempotent job processing
+# - Manages job state transitions
+# - Handles error cases and retries
+# - Provides transaction management
+# - Coordinates between repository and external services
+# - Implements business logic validation
+
 from datetime import datetime, timedelta
 from typing import List, Optional
 from fastapi import Depends

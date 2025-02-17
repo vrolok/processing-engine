@@ -1,3 +1,9 @@
+### Health Check Endpoints:
+# - Basic health probe (/health) for kubernetes liveness checks
+# - Deep health probe (/health/ready) checking all system components
+# - Monitors database connectivity and service status
+# - Returns detailed health status with service-specific information
+
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
@@ -16,10 +22,10 @@ async def health_check():
         status_code=200
     )
 
-@router.get("/health/deep")
-async def deep_health_check(db=Depends(get_database)):
+@router.get("/health/ready")
+async def ready_health_check(db=Depends(get_database)):
     """
-    Deep health check including database connection.
+    Ready health check including database connection.
     """
     try:
         # Check database connection
