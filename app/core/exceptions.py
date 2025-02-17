@@ -1,10 +1,3 @@
-### Core application infrastructure:
-### Exceptions (exceptions.py):
-# - Centralized exception handling
-# - Custom HTTP exception definitions
-# - Standardized error response format
-# - Validation error handling
-
 from fastapi import HTTPException, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError

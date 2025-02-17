@@ -1,7 +1,7 @@
 from app.models.base import TimestampModel, MongoModel
 from app.models.job import (
     JobStatus,
-    JobCreate,
+    JobCreate, 
     JobUpdate,
     Job,
     JobResponse,
@@ -17,11 +17,11 @@ __all__ = [
     # Job models
     "JobStatus",
     "JobCreate",
-    "JobUpdate",
+    "JobUpdate", 
     "Job",
     "JobResponse",
     "JobList",
-    
+
     # User models
     "User",
     "UserResponse"

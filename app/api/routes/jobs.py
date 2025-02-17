@@ -1,15 +1,5 @@
-### Job Management Endpoints (/jobs):
-# - CREATE: Submits new jobs with validation and user context
-# - READ: Retrieves individual jobs and lists jobs with pagination
-# - UPDATE: Modifies existing jobs with permission checks
-# - DELETE: Removes jobs with user verification
-# - PROCESS: Internal endpoint for Cloud Tasks job processing
-# - Implements proper error handling and status codes
-# - Includes authentication and authorization checks
-
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
-
 from app.core.security import get_current_user
 from app.models.job import JobCreate, JobResponse, JobUpdate, JobList
 from app.services.job_service import JobService
@@ -59,7 +49,7 @@ async def list_jobs(
     job_service: JobService = Depends()
 ) -> JobList:
     """
-    List all jobs with pagination and optional status filter.
+    List jobs with pagination and an optional status filter.
     """
     jobs = await job_service.list_jobs(
         user_id=current_user["id"],
@@ -67,12 +57,7 @@ async def list_jobs(
         limit=limit,
         status=status
     )
-    return JobList(
-        items=jobs,
-        total=len(jobs),
-        skip=skip,
-        limit=limit
-    )
+    return JobList(items=jobs, total=len(jobs), skip=skip, limit=limit)
 
 @router.put("/{job_id}", response_model=JobResponse)
 async def update_job(

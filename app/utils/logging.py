@@ -1,113 +1,104 @@
-### Utility functions and helpers:
-### Logging System (logging.py):
-# - Structured JSON logging
-# - Request/user context tracking
-# - Environment-aware formatting
-# - Error logging helpers
-# - Context managers for log enrichment
-# - Performance logging
-# - Debug information in development
-# - Clean logging API with type hints
-
 import logging
 import json
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict
 from pythonjsonlogger import jsonlogger
 from contextvars import ContextVar
-
 from app.core.config import settings
 
 # Context variables for request tracking
 request_id: ContextVar[str] = ContextVar('request_id', default='')
 user_id: ContextVar[str] = ContextVar('user_id', default='')
 
+
 class CustomJsonFormatter(jsonlogger.JsonFormatter):
     """
-    Custom JSON formatter that adds additional fields and formatting.
+    Custom JSON formatter that adds additional fields for structured logging.
     """
-    def add_fields(self, log_record: Dict[str, Any], record: logging.LogRecord, message_dict: Dict[str, Any]) -> None:
+    def add_fields(
+        self, log_record: Dict[str, Any], record: logging.LogRecord, message_dict: Dict[str, Any]
+    ) -> None:
         super().add_fields(log_record, record, message_dict)
-        
-        # Add timestamp in ISO format
-        log_record['timestamp'] = datetime.utcnow().isoformat()
+        # Add timestamp with timezone awareness
+        log_record['timestamp'] = datetime.now(timezone.utc).isoformat()
         log_record['level'] = record.levelname
         log_record['environment'] = settings.ENVIRONMENT
-        
+
         # Add context variables if they exist
         req_id = request_id.get()
         if req_id:
             log_record['request_id'] = req_id
-            
         usr_id = user_id.get()
         if usr_id:
             log_record['user_id'] = usr_id
-        
-        # Add caller information in development
+
+        # Add caller information in development mode
         if settings.DEBUG:
             log_record['function'] = record.funcName
             log_record['module'] = record.module
             log_record['line'] = record.lineno
-        
-        # Add exception info if present
+
+        # Include exception information if present
         if record.exc_info:
             log_record['exception'] = self.formatException(record.exc_info)
 
+
 class RequestIdFilter(logging.Filter):
     """
-    Filter that adds request_id to log records.
+    Logging filter that injects the current request ID into log records.
     """
     def filter(self, record: logging.LogRecord) -> bool:
         record.request_id = request_id.get()
         return True
 
+
 def setup_logging() -> None:
     """
-    Configure logging for the application.
-    Sets up JSON logging with appropriate handlers and formatters.
+    Configure and setup the application's logging:
+    - Uses a JSON formatter for structured logging.
+    - Removes any pre-existing logging handlers.
+    - Sets log levels for core and third-party loggers.
     """
-    # Create root logger
+    # Create the root logger and set its level
     root_logger = logging.getLogger()
     root_logger.setLevel(settings.LOG_LEVEL)
-    
-    # Remove existing handlers
+
+    # Remove existing handlers from the root logger
     for handler in root_logger.handlers[:]:
         root_logger.removeHandler(handler)
-    
-    # Create console handler
+
+    # Create a console handler and assign our custom JSON formatter
     console_handler = logging.StreamHandler(sys.stdout)
-    
-    # Create formatter
     formatter = CustomJsonFormatter(
-        fmt='%(timestamp)s %(level)s %(name)s %(message)s',
+        fmt='%(timestamp)s %(levelname)s %(name)s %(message)s',
         json_ensure_ascii=False
     )
     console_handler.setFormatter(formatter)
-    
-    # Add request ID filter
     console_handler.addFilter(RequestIdFilter())
-    
-    # Add handler to root logger
+
+    # Add the console handler to the root logger
     root_logger.addHandler(console_handler)
-    
-    # Set third-party loggers to WARNING level
+
+    # Set third-party loggers to WARNING to reduce verbosity
     logging.getLogger('uvicorn.access').setLevel(logging.WARNING)
     logging.getLogger('fastapi').setLevel(logging.WARNING)
-    
-    # Create logger for our application
+
+    # Create a dedicated application logger
     app_logger = logging.getLogger('app')
     app_logger.setLevel(settings.LOG_LEVEL)
 
+
 def get_logger(name: str) -> logging.Logger:
     """
-    Get a logger instance with the specified name.
+    Retrieve a named logger under the 'app' namespace.
     """
     return logging.getLogger(f"app.{name}")
 
+
 class LoggerContext:
     """
-    Context manager for temporarily setting context variables in logs.
+    Context manager for temporarily setting log context variables.
     """
     def __init__(self, **kwargs):
         self.context = kwargs
@@ -128,44 +119,18 @@ class LoggerContext:
             elif key == 'user_id':
                 user_id.reset(token)
 
+
 def log_error(logger: logging.Logger, error: Exception, context: Dict[str, Any] = None) -> None:
     """
-    Helper function to log errors with additional context.
+    Log an error with context using a structured JSON format.
     """
     error_data = {
         'error_type': type(error).__name__,
         'error_message': str(error),
         'context': context or {}
     }
-    
     logger.error(
         f"Error occurred: {error_data['error_type']}",
-        extra={
-            'error_details': error_data,
-            'stack_trace': True
-        },
+        extra={'error_details': error_data, 'stack_trace': True},
         exc_info=error
     )
-
-# Usage examples:
-"""
-# Initialize logging
-setup_logging()
-
-# Get a logger instance
-logger = get_logger(__name__)
-
-# Basic logging
-logger.info("Processing started", extra={"job_id": "123"})
-
-# Error logging with context
-try:
-    # Some code that might raise an exception
-    raise ValueError("Invalid input")
-except Exception as e:
-    log_error(logger, e, {"job_id": "123"})
-
-# Using context manager
-with LoggerContext(request_id="req-123", user_id="user-456"):
-    logger.info("Processing request")
-"""

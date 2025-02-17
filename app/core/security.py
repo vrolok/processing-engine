@@ -1,9 +1,3 @@
-### Core application infrastructure:
-### Security (security.py):
-# - Azure AD authentication integration
-# - User context extraction and validation
-# - Token handling and verification
-
 from typing import Any
 from fastapi import HTTPException, Depends, status
 from fastapi_azure_auth import SingleTenantAzureAuthorizationCodeBearer

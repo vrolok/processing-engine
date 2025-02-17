@@ -1,10 +1,3 @@
-### Core application infrastructure:
-### Middleware (middleware.py):
-# - Request/response logging
-# - Error handling middleware
-# - Performance monitoring
-# - Request context tracking
-
 import time
 import logging
 from typing import Callable
